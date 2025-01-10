@@ -14,14 +14,17 @@ app.use(express.json());
 connectDB();
 const secret = process.env.SECRETKEY
 
-app.use(
-  session({
-    secret: secret,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 },
-  })
-);
+app.use(session({
+  secret: secret, 
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // Only set secure cookies in production
+    httpOnly: true,
+    sameSite: 'strict', // or 'lax', depending on your needs
+  }
+}));
+
 app.use(passport.initialize());
 app.use(passport.session());
 

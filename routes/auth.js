@@ -5,21 +5,12 @@ const passport = require("passport");
 const CLIENT_URL = "http://localhost:5173";
 
 router.get("/login/success", async (req, res) => {
-  if (req.user) {
-    try {
-      const user = await User.findById(req.user); // Fetch user from MongoDB
-      res.status(200).json({
-        success: true,
-        message: "Login successful",
-        user, // Send the user object to the frontend
-      });
-    } catch (err) {
-      console.error("Error fetching user:", err);
-      res.status(500).json({
-        success: false,
-        message: "Internal Server Error",
-      });
-    }
+  if (req.session.user) {
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      user: req.session.user, // Send the user info stored in the session
+    });
   } else {
     res.status(401).json({
       success: false,
