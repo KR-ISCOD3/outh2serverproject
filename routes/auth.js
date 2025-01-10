@@ -4,16 +4,30 @@ const passport = require("passport");
 
 const CLIENT_URL = "http://localhost:5173";
 
-router.get("/login/success", (req, res) => {
+router.get("/login/success", async (req, res) => {
   if (req.user) {
-    res.status(200).json({
-      success: true,
-      message: "successfull",
-      user: req.user,
-      // cookies: req.cookies // (Optional) Include cookies if needed
+    try {
+      const user = await User.findById(req.user); // Fetch user from MongoDB
+      res.status(200).json({
+        success: true,
+        message: "Login successful",
+        user, // Send the user object to the frontend
+      });
+    } catch (err) {
+      console.error("Error fetching user:", err);
+      res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
+  } else {
+    res.status(401).json({
+      success: false,
+      message: "Unauthorized",
     });
   }
 });
+
 
 router.get("/login/failed", (req, res) => {
   res.status(401).json({
