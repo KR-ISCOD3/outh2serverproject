@@ -13,31 +13,28 @@ passport.use(
     {
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
-      scope: ["profile", "email"], // Add the "email" scope
+      callbackURL: process.env.NODE_ENV === "production"
+        ? "https://outh2serverproject.onrender.com/auth/google/callback"
+        : "http://localhost:4000/auth/google/callback",
+      scope: ["profile", "email"], // Ensure the email scope is requested
     },
     async function (accessToken, refreshToken, profile, done) {
       try {
         const { id, displayName, emails, photos } = profile;
+        const email = emails?.[0]?.value;
+        const avatar = photos?.[0]?.value;
 
-        // Extract necessary details
-        const email = emails?.[0]?.value; // Email address
-        const avatar = photos?.[0]?.value; // Profile photo URL
-
-        // Check if the user already exists in the database
         let user = await User.findOne({ googleId: id });
 
         if (!user) {
-          // Create a new user if not found
           user = await User.create({
             googleId: id,
             name: displayName,
-            email: email || null, // Fallback to null if email is not provided
+            email: email || null,
             avatar,
           });
         }
 
-        // Pass the user object to Passport
         done(null, user);
       } catch (error) {
         console.error("Error saving user to the database:", error);
@@ -48,14 +45,18 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user);
+  done(null, user._id);
 });
 
-passport.deserializeUser(async(id, done) => {
+passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findById(id);
+    if (!user) {
+      return done(new Error("User not found"));
+    }
     done(null, user);
   } catch (error) {
+    console.error("Error deserializing user:", error);
     done(error, false);
   }
 });
