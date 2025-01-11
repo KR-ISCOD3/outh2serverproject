@@ -7,14 +7,16 @@ config();
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const callbackURL ="/auth/google/callback";
+const callbackURL = process.env.NODE_ENV === "production"
+    ? "https://outh2serverproject.onrender.com/auth/google/callback"
+    : "http://localhost:4000/auth/google/callback";
 
 passport.use(
   new GoogleStrategy(
     {
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
-      callbackURL: callbackURL,
+      callbackURL: "https://outh2serverproject.onrender.com/auth/google/callback",
       scope: ["profile", "email"], // Ensure the email scope is requested
     },
     async function (accessToken, refreshToken, profile, done) {
