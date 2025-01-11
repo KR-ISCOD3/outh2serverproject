@@ -7,9 +7,7 @@ config();
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const callbackURL = process.env.NODE_ENV === "production"
-    ? "https://outh2serverproject.onrender.com/auth/google/callback"
-    : "http://localhost:4000/auth/google/callback";
+const callbackURL ="/auth/google/callback";
 
 passport.use(
   new GoogleStrategy(
@@ -21,12 +19,14 @@ passport.use(
     },
     async function (accessToken, refreshToken, profile, done) {
       try {
+        console.log(profile);
         const { id, displayName, emails, photos } = profile;
+        
         const email = emails?.[0]?.value;
         const avatar = photos?.[0]?.value;
 
         let user = await User.findOne({ googleId: id });
-
+        
         if (!user) {
           user = await User.create({
             googleId: id,
@@ -34,7 +34,8 @@ passport.use(
             email: email || null,
             avatar,
           });
-        }
+        } 
+        console.log("Authenticated User:", user);
 
         done(null, user);
       } catch (error) {
@@ -46,7 +47,8 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user);
+  console.log("Serializing User:", user);
+  done(null, user._id);
 });
 
 passport.deserializeUser(async (id, done) => {

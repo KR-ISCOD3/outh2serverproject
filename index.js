@@ -14,20 +14,6 @@ app.use(express.json());
 connectDB();
 const secret = process.env.SECRETKEY
 
-app.use(session({
-  secret: secret, 
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production', // Only set secure cookies in production
-    httpOnly: true,
-    sameSite: 'strict', // or 'lax', depending on your needs
-  }
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -35,6 +21,24 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(session({
+  secret: secret, 
+  resave: false,
+  saveUninitialized: true,
+  cookie: { 
+    maxAge: 24 * 60 * 60 * 1000 // 1 day in milliseconds
+  },
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something went wrong!");
+});
 
 app.use("/auth", authRoute);
 

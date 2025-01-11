@@ -6,20 +6,22 @@ const CLIENT_URL = "http://localhost:5173"; // Your client URL (frontend)
 
 // Google login success route
 router.get("/login/success", (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (token && verifyToken(token)) {
+  console.log("Authenticated User:", req.user);  // Should log the user object
+  if (req.user) {
     res.status(200).json({
       success: true,
-      message: "Login successful",
-      user: decodeToken(token), // Send decoded user details
+      message: "User has successfully authenticated",
+      user: req.user,
     });
   } else {
     res.status(401).json({
       success: false,
-      message: "Unauthorized",
+      message: "Unauthorized: User not authenticated",
     });
   }
 });
+
+
 
 // Google login failure route
 router.get("/login/failed", (req, res) => {
