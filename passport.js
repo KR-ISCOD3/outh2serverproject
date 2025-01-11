@@ -16,7 +16,7 @@ passport.use(
     {
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://outh2serverproject.onrender.com/auth/google/callback",
+      callbackURL: "/auth/google/callback",
       scope: ["profile", "email"], // Ensure the email scope is requested
     },
     async function (accessToken, refreshToken, profile, done) {
