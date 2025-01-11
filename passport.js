@@ -46,7 +46,7 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user._id);
+  done(null, user);
 });
 
 passport.deserializeUser(async (id, done) => {
